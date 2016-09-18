@@ -1,0 +1,22 @@
+---
+- name: Configure a webserver
+  hosts: created_nodes
+  user: ubuntu
+  gather_facts: false
+  become: true
+  tasks:
+    - name: run echo command
+      command: /bin/echo  Hello, world!!!
+    
+    - name: Install apache2
+      apt: pkg=apache2 update_cache=yes state=latest
+
+    - name: enable mode_rewrite
+      apache2_module: name=rewrite state=present 
+      notify:
+      - restart apache2
+    - name: copy files to document root
+      copy: src=index.html dest=/var/www/html/index.html
+  handlers:
+    - name: restart apache2
+      service: name=apache2 state=restarted
